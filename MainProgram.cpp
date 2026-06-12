@@ -204,13 +204,38 @@ int wordCountInFile(const string& filename) {
 // For simplicity, treat the text as space-separated tokens: replace a
 // token ONLY if it equals 'target' exactly (case-sensitive).
 // If the file cannot be opened, return "" (empty string).
-// Example: file "the cat sat" with target "cat" -> "the *** sat"
 string censorWord(const string& filename, const string& target) {
-    // TODO: read lines, split each into tokens by spaces, replace matching
-    // tokens with '*' repeated target.length() times, rejoin with spaces,
-    // then join the lines with '\n'.
-    return ""; // TODO: replace
+    ifstream in(filename);
+    if (!in.is_open()) return "";
+    in.close();
+ 
+    vector<string> lines = readLines(filename);
+    string output;
+    for (size_t li = 0; li < lines.size(); li++) {
+        const string& line = lines[li];
+        string rebuilt;
+        string token;
+        // walk the line and split on spaces, preserving single-space joins
+        for (size_t i = 0; i <= line.size(); i++) {
+            if (i == line.size() || line[i] == ' ') {
+                if (!token.empty()) {
+                    if (token == target)
+                        rebuilt += string(target.size(), '*');
+                    else
+                        rebuilt += token;
+                    token.clear();
+                }
+                if (i < line.size()) rebuilt += ' ';
+            } else {
+                token += line[i];
+            }
+        }
+        output += rebuilt;
+        if (li + 1 < lines.size()) output += "\n";
+    }
+    return output;
 }
+ 
 
 // ========================================================================
 // main() - demonstrates your functions. You may edit freely to test.
